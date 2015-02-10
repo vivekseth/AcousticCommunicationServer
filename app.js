@@ -30,6 +30,45 @@ if ('development' == app.get('env')) {
 app.get('/', routes.index);
 app.get('/users', user.list);
 
+
+var lookupTable = {};
+
+app.get('/register', function (req, res) {
+	if (req.query.code && req.query.data) {
+		lookupTable[req.query.code] = req.query.data;
+		res.json({
+			'status': 'OK'
+		});
+	} else {
+		res.json({
+			'status': 'ERROR',
+			'payload': 'Must provode both code and data in query string.'
+		});
+	}
+});
+
+app.get('/lookup', function (req, res) {
+	if (req.query.code) {
+		var data = lookupTable[req.query.code];
+		if (data) {
+			res.json({
+				'status': 'OK',
+				'payload': data
+			});
+		} else {
+			res.json({
+				'status': 'ERROR',
+				'payload': 'No data exists for given code.'
+			});
+		}
+	} else {
+		res.json({
+			'status': 'ERROR',
+			'payload': 'Must provode both code in query string.'
+		});
+	}
+});
+
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
